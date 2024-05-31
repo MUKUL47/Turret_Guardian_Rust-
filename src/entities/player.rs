@@ -1,3 +1,4 @@
+use enemies::Enemy;
 use ggez::{
     event,
     glam::Vec2,
@@ -5,6 +6,8 @@ use ggez::{
     GameResult,
 };
 
+#[path = "./enemies.rs"]
+mod enemies;
 #[path = "./gun_projectile.rs"]
 mod gun_projectile;
 #[path = "../utils/mod.rs"]
@@ -15,7 +18,8 @@ pub struct Player {
     position: utils::Pointf32,
     angle: f32,
     gun_position: utils::Pointf32,
-    gun_projectiles: Vec<gun_projectile::Projectile>,
+    gun_projectile: gun_projectile::Projectiles,
+    enemies: enemies::Enemies,
 }
 impl Player {
     pub fn new() -> Self {
@@ -23,7 +27,8 @@ impl Player {
             position: (1., 1.),
             gun_position: (1., 1.),
             angle: (0.),
-            gun_projectiles: vec![],
+            enemies: enemies::Enemies::new(),
+            gun_projectile: gun_projectile::Projectiles::new(),
         }
     }
 
@@ -35,9 +40,8 @@ impl Player {
             self.angle,
             Some(TURRET_DISTANCE),
         );
-        for i in self.gun_projectiles.iter_mut() {
-            i.update();
-        }
+        self.enemies.update(&self.position);
+        self.gun_projectile.update();
         return self;
     }
 
@@ -54,15 +58,11 @@ impl Player {
     }
 
     pub fn mouse_click(&mut self) -> &mut Self {
-        self.gun_projectiles.push(gun_projectile::Projectile::new(
-            &self.gun_position,
-            &self.position,
-            &self.angle
-        ));
+        self.gun_projectile.fire(&self.gun_position, &self.angle);
         self
     }
 
-    pub fn draw(&self, ctx: &ggez::Context, canvas: &mut Canvas) {
+    pub fn draw(&mut self, ctx: &ggez::Context, canvas: &mut Canvas) {
         let mut fixtues = [
             (Color::RED, self.position),
             (Color::WHITE, self.gun_position),
@@ -81,12 +81,11 @@ impl Player {
                 Vec2::new(i.1 .0 as f32, i.1 .1 as f32),
             );
         }
-        self.draw_projectiles(ctx, canvas);
+        self.draw_entities(ctx, canvas);
     }
 
-    fn draw_projectiles(&self, ctx: &ggez::Context, canvas: &mut Canvas) {
-        for i in self.gun_projectiles.iter() {
-            i.draw(ctx, canvas);
-        }
+    fn draw_entities(&mut self, ctx: &ggez::Context, canvas: &mut Canvas) {
+        self.gun_projectile.draw(ctx, canvas);
+        self.enemies.draw(ctx, canvas);
     }
 }
