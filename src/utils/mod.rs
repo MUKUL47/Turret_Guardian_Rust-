@@ -25,3 +25,4 @@ pub fn euclidean_distance(p1: &Pointf32, p2: &Pointf32) -> f32 {
 pub fn angle_btw_2_points(p1: &Pointf32, p2: &Pointf32) -> f32 {
     (p2.1 - p1.1).atan2(p2.0 - p1.0)
 }
+pub mod shared_lazy;

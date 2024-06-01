@@ -7,6 +7,7 @@ use ggez::event::EventHandler;
 use ggez::glam::*;
 use ggez::graphics::{self, Color};
 use ggez::{Context, GameResult};
+use utils::shared_lazy::{WINDOW_HEIGHT, WINDOW_WIDTH};
 #[path = "../entities/mod.rs"]
 mod entities;
 #[path = "../utils/mod.rs"]
@@ -21,10 +22,10 @@ impl MainState {
         let s = MainState {
             player: entities::player::Player::new(),
             w: conf::WindowMode {
-                width: 800.0,
-                height: 600.0,
+                width: *WINDOW_WIDTH.lock().unwrap(),
+                height: *WINDOW_HEIGHT.lock().unwrap(),
                 maximized: false,
-                fullscreen_type: FullscreenType::Windowed,
+                fullscreen_type: FullscreenType::True,
                 borderless: false,
                 min_width: 1.0,
                 max_width: 0.0,
@@ -66,6 +67,14 @@ impl event::EventHandler<ggez::GameError> for MainState {
             _y: f32,
         ) -> Result<(), ggez::GameError> {
         self.player.mouse_click();
+        Ok(())
+    }
+
+    fn resize_event(&mut self, _ctx: &mut Context, _width: f32, _height: f32) -> Result<(), ggez::GameError> {
+        let mut height = WINDOW_HEIGHT.lock().unwrap();
+        *height = _height;
+        let mut width = WINDOW_WIDTH.lock().unwrap();
+        *width = _width;
         Ok(())
     }
 
