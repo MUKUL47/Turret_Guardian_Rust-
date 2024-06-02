@@ -3,15 +3,14 @@ use std::path;
 use ggez::conf;
 use ggez::conf::FullscreenType;
 use ggez::event;
-use ggez::event::EventHandler;
 use ggez::glam::*;
 use ggez::graphics::{self, Color};
 use ggez::{Context, GameResult};
-use utils::shared_lazy::{WINDOW_HEIGHT, WINDOW_WIDTH};
 #[path = "../entities/mod.rs"]
 mod entities;
 #[path = "../utils/mod.rs"]
 mod utils;
+use crate::core::game::entities::player::enemies::utils::EntityRenderer;
 pub struct MainState {
     player: entities::player::Player,
     w: conf::WindowMode,
@@ -22,8 +21,8 @@ impl MainState {
         let s = MainState {
             player: entities::player::Player::new(),
             w: conf::WindowMode {
-                width: *WINDOW_WIDTH.lock().unwrap(),
-                height: *WINDOW_HEIGHT.lock().unwrap(),
+                width: 800.,
+                height: 800.,
                 maximized: false,
                 fullscreen_type: FullscreenType::True,
                 borderless: false,
@@ -71,10 +70,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
     }
 
     fn resize_event(&mut self, _ctx: &mut Context, _width: f32, _height: f32) -> Result<(), ggez::GameError> {
-        let mut height = WINDOW_HEIGHT.lock().unwrap();
-        *height = _height;
-        let mut width = WINDOW_WIDTH.lock().unwrap();
-        *width = _width;
+        self.player.window_size(&_width, &_height);
         Ok(())
     }
 

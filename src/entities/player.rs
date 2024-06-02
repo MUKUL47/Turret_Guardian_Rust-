@@ -1,4 +1,4 @@
-use enemies::Enemy;
+use enemies::{utils::EntityRenderer, Enemy};
 use ggez::{
     event,
     glam::Vec2,
@@ -7,19 +7,25 @@ use ggez::{
 };
 
 #[path = "./enemies.rs"]
-mod enemies;
+pub(crate) mod enemies;
 #[path = "./gun_projectile.rs"]
 mod gun_projectile;
 #[path = "../utils/mod.rs"]
-mod utils;
+pub(crate) mod utils;
 //
 static TURRET_DISTANCE: f32 = 50.;
+
 pub struct Player {
     position: utils::Pointf32,
     angle: f32,
     gun_position: utils::Pointf32,
     gun_projectile: gun_projectile::Projectiles,
     enemies: enemies::Enemies,
+}
+impl EntityRenderer for Player {
+    fn window_size(&mut self, w: &f32, h: &f32) {
+        self.enemies.window_size(w, h);
+    }
 }
 impl Player {
     pub fn new() -> Self {

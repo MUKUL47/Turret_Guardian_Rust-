@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use ggez::{
     glam::Vec2,
     graphics::{self, Canvas, Color},
@@ -16,25 +18,38 @@ struct Projectile {
 
 #[derive(Debug)]
 pub struct Projectiles {
-    projectiles: Vec<Projectile>,
+    projectiles: HashMap<i32, Projectile>,
+    projectile_counter: i32
 }
 impl Projectiles {
     pub fn new() -> Self {
         Projectiles {
-            projectiles: vec![],
+            projectiles: HashMap::new(),
+            projectile_counter: 0
         }
     }
     pub fn fire(&mut self, position: &utils::Pointf32, original_angle: &f32) {
-        self.projectiles.push(Projectile {
-            origin: *position,
-            position: (0., 0.),
-            original_angle: *original_angle,
-            distance: -1., //utils::euclidean_distance(&origin, position),
-        });
+        println!("{}",self.projectile_counter);
+        self.projectile_counter = i32::wrapping_add(self.projectile_counter, 1);
+        self.projectiles.insert(
+            self.projectile_counter,
+            Projectile {
+                origin: *position,
+                position: (0., 0.),
+                original_angle: *original_angle,
+                distance: -1., //utils::euclidean_distance(&origin, position),
+            },
+        );
     }
 
     pub fn update(&mut self) {
-        for p in self.projectiles.iter_mut() {
+        
+        self.projectiles.retain(|&_,  p| {
+            let x = p.position.0;
+            let y = p.position.1;
+            return !(x < -1. || x > 800. || y < -1. || y > 800.)
+        });
+        for (_, p) in &mut self.projectiles {
             p.distance = p.distance + 8.;
             p.position = utils::get_rotation_angle(
                 &p.origin,
@@ -46,7 +61,7 @@ impl Projectiles {
     }
 
     pub fn draw(&mut self, ctx: &ggez::Context, canvas: &mut Canvas) {
-        for p in self.projectiles.iter_mut() {
+        for (_, p) in &mut self.projectiles {
             let mut fixtues = [(Color::YELLOW, p.position)];
             for i in fixtues.iter_mut() {
                 canvas.draw(

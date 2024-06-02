@@ -3,9 +3,10 @@ use ggez::{
     graphics::{self, Canvas, Color},
 };
 use rand::*;
-use utils::shared_lazy::{WINDOW_HEIGHT, WINDOW_WIDTH};
+use utils::{Pointf32};
 #[path = "../utils/mod.rs"]
-mod utils;
+pub(crate) mod utils;
+use utils::EntityRenderer;
 enum EnemyVariant {
     EASY,
     MEDIUM,
@@ -18,31 +19,36 @@ pub struct Enemy {
 pub struct Enemies {
     enemies: Vec<Enemy>,
     c: i32,
+    win_size: Pointf32
 }
 
-impl Enemies {
+impl EntityRenderer for Enemies {
+    fn window_size(&mut self, w: &f32, h: &f32) {
+        self.win_size = (*w, *h);
+    }
+}
+    impl Enemies {
     pub fn new() -> Self {
         Enemies {
             enemies: vec![],
             c: 0,
+            win_size: (0.,0.)
         }
     }
 
     fn update_enemies(&mut self) {
         self.c = i32::wrapping_add(self.c, 1);
-        if self.c % 2 == 0 {
-            let h = *WINDOW_HEIGHT.lock().unwrap();
-            let w = *WINDOW_WIDTH.lock().unwrap();
+        if self.c % 10 == 0 {
             let mut rng = rand::thread_rng();
             let direction_rand: i32 = rng.gen_range(1..=4);
             let origin: (f32, f32) = if direction_rand == 1 {
-                (0., rng.gen_range(0..=h as i32) as f32)
+                (0., rng.gen_range(0..=self.win_size.1 as i32) as f32)
             } else if direction_rand == 2{
-                (rng.gen_range(0..=w as i32) as f32, 0.)
+                (rng.gen_range(0..=self.win_size.0 as i32) as f32, 0.)
             }else if direction_rand == 3{
-                (rng.gen_range(0..=w as i32) as f32, h)
+                (rng.gen_range(0..=self.win_size.0 as i32) as f32, self.win_size.1)
             }else {
-                (w, rng.gen_range(0..=h as i32) as f32)
+                (self.win_size.0, rng.gen_range(0..=self.win_size.1 as i32) as f32)
             };
             self.enemies.push(Enemy {
                 distance_from_target: utils::euclidean_distance(&(0., 0.), &origin),
@@ -65,7 +71,6 @@ impl Enemies {
         self
     }
 
-    pub fn window_resize(&mut self, width: &f32, height: &f32) {}
 
     pub fn draw(&mut self, ctx: &ggez::Context, canvas: &mut Canvas) {
         for e in self.enemies.iter_mut() {
