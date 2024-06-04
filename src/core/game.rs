@@ -1,25 +1,39 @@
+#![recursion_limit = "256"]
+use std::cell::Cell;
+use std::cell::RefCell;
+use std::ops::Deref;
 use std::path;
-
+use std::rc::Rc;
 use ggez::conf;
 use ggez::conf::FullscreenType;
 use ggez::event;
 use ggez::glam::*;
 use ggez::graphics::{self, Color};
 use ggez::{Context, GameResult};
+use state::State_Manager;
 #[path = "../entities/mod.rs"]
 mod entities;
 #[path = "../utils/mod.rs"]
 mod utils;
-use crate::core::game::entities::player::enemies::utils::EntityRenderer;
+#[path = "../state/mod.rs"]
+mod state;
+
 pub struct MainState {
-    player: entities::player::Player,
+    player_entity: entities::player::Player,
+    enemy_entity: entities::enemies::Enemies,
+    gun_entity: entities::gun_projectile::Projectiles,
     w: conf::WindowMode,
+    state_manager: Rc<RefCell<State_Manager>>
 }
 
 impl MainState {
     pub fn new() -> GameResult<MainState> {
+        let  state_manager: Rc<RefCell<State_Manager>> = Rc::new(RefCell::new(State_Manager::new()));
         let s = MainState {
-            player: entities::player::Player::new(),
+            player_entity: entities::player::Player::new(Rc::clone(&state_manager)),
+            enemy_entity: entities::enemies::Enemies::new(Rc::clone(&state_manager)),
+            gun_entity: entities::gun_projectile::Projectiles::new(Rc::clone(&state_manager)),
+            state_manager: Rc::clone(&state_manager),
             w: conf::WindowMode {
                 width: 800.,
                 height: 800.,
@@ -50,11 +64,13 @@ impl event::EventHandler<ggez::GameError> for MainState {
         _dx: f32,
         _dy: f32,
     ) -> Result<(), ggez::GameError> {
-        self.player.mouse_motion_event(_ctx, _x, _y, _dx, _dy)?;
+        self.player_entity.mouse_motion_event(_ctx, _x, _y, _dx, _dy)?;
         Ok(())
     }
     fn update(&mut self, _ctx: &mut Context) -> GameResult {
-        self.player.update();
+        self.player_entity.update();
+        self.enemy_entity.update();
+        self.gun_entity.update();
         Ok(())
     }
 
@@ -65,19 +81,21 @@ impl event::EventHandler<ggez::GameError> for MainState {
             _x: f32,
             _y: f32,
         ) -> Result<(), ggez::GameError> {
-        self.player.mouse_click();
+        self.player_entity.mouse_click();
         Ok(())
     }
 
     fn resize_event(&mut self, _ctx: &mut Context, _width: f32, _height: f32) -> Result<(), ggez::GameError> {
-        self.player.window_size(&_width, &_height);
+        self.state_manager.borrow_mut().update_win_size((_width, _height));
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         let mut canvas =
             graphics::Canvas::from_frame(ctx, graphics::Color::from([0.1, 0.2, 0.3, 1.0]));
-        self.player.draw(&ctx, &mut canvas);
+        self.player_entity.draw(&ctx, &mut canvas);
+        self.enemy_entity.draw(&ctx, &mut canvas);
+        self.gun_entity.draw(&ctx, &mut canvas);
 
         canvas.finish(ctx)?;
         Ok(())

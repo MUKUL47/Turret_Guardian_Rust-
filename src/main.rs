@@ -1,3 +1,4 @@
+#![recursion_limit = "26624624133113231"]
 mod utils;
 mod core;
 use ggez::event;
