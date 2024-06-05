@@ -1,4 +1,4 @@
-# TURRET Game Project
+# A Simple turret game
 
 ## Overview
 
