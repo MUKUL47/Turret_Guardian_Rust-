@@ -4,6 +4,7 @@ use ggez::{
     glam::Vec2,
     graphics::{self, Canvas, Color},
 };
+use utils::get_rand_color;
 
 use crate::core::game::state::State_Manager;
 
@@ -27,7 +28,7 @@ impl Projectiles {
 
     pub fn draw(&mut self, ctx: &ggez::Context, canvas: &mut Canvas) {
         for p in &self.state_manager.borrow().gun_projectile.projectiles {
-            let mut fixtues = [(Color::YELLOW, p.position)];
+            let  fixtues = [(p.color, p.position)];
             for i in fixtues.iter() {
                 canvas.draw(
                     &graphics::Mesh::new_circle(

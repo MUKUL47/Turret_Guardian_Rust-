@@ -8,6 +8,7 @@ use ggez::conf;
 use ggez::conf::FullscreenType;
 use ggez::event;
 use ggez::glam::*;
+use ggez::graphics::Canvas;
 use ggez::graphics::DrawParam;
 use ggez::graphics::Drawable;
 use ggez::graphics::Text;
@@ -25,8 +26,9 @@ pub struct MainState {
     player_entity: entities::player::Player,
     enemy_entity: entities::enemies::Enemies,
     gun_entity: entities::gun_projectile::Projectiles,
+    score_board_entity: entities::score_board::ScoreBoard,
     w: conf::WindowMode,
-    state_manager: Rc<RefCell<State_Manager>>
+    state_manager: Rc<RefCell<State_Manager>>,
 }
 
 impl MainState {
@@ -36,6 +38,7 @@ impl MainState {
             player_entity: entities::player::Player::new(Rc::clone(&state_manager)),
             enemy_entity: entities::enemies::Enemies::new(Rc::clone(&state_manager)),
             gun_entity: entities::gun_projectile::Projectiles::new(Rc::clone(&state_manager)),
+            score_board_entity: entities::score_board::ScoreBoard::new(Rc::clone(&state_manager)),
             state_manager: Rc::clone(&state_manager),
             w: conf::WindowMode {
                 width: 800.,
@@ -74,6 +77,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
         self.player_entity.update();
         self.enemy_entity.update();
         self.gun_entity.update();
+        self.state_manager.borrow_mut().check_game_over();
         Ok(())
     }
 
@@ -99,6 +103,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
         self.player_entity.draw(&ctx, &mut canvas);
         self.enemy_entity.draw(&ctx, &mut canvas);
         self.gun_entity.draw(&ctx, &mut canvas);
+        self.score_board_entity.draw(&ctx, &mut canvas);
 
         canvas.finish(ctx)?;
         Ok(())

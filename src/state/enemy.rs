@@ -1,5 +1,6 @@
+use ggez::graphics::Color;
 use rand::*;
-use utils::Pointf32;
+use utils::{get_rand_color, Pointf32};
 
 use super::gun_projectile;
 
@@ -11,15 +12,16 @@ pub struct Enemy {
     pub position: utils::Pointf32,
     distance_from_target: f32,
     pub size: f32,
+    pub color: Color,
 }
 #[derive(Clone)]
 
 pub struct Enemies {
     pub enemies: Vec<Enemy>,
     pub win_size: Pointf32,
-    wave: i32,
     next_wave: bool,
     update_counter: i8,
+    pub enemies_killed: i64
 }
 
 impl Enemies {
@@ -27,13 +29,16 @@ impl Enemies {
         Enemies {
             enemies: vec![],
             win_size: (0., 0.),
-            wave: 0,
             update_counter: 0,
             next_wave: false,
+            enemies_killed: 0
         }
     }
 
-    pub fn check_projectile_collision(&mut self, gun_projectile: &mut gun_projectile::Projectiles) {
+    pub fn check_projectile_collision(
+        &mut self,
+        gun_projectile: &mut gun_projectile::Projectiles,
+    ) {
         for projectile in gun_projectile.projectiles.iter_mut() {
             if projectile.is_deleted {
                 continue;
@@ -42,6 +47,7 @@ impl Enemies {
                 let is_collided = (f32::abs(projectile.position.0 - e.position.0) < (e.size + 2.5)
                     && f32::abs(projectile.position.1 - e.position.1) < (e.size + 2.5));
                 if is_collided {
+                    self.enemies_killed += 1;
                     projectile.mark_deleted();
                 }
                 return !is_collided;
@@ -52,7 +58,7 @@ impl Enemies {
 
     fn update_enemies(&mut self) {
         self.update_counter = self.update_counter.wrapping_add(1);
-        if self.update_counter % 100 != 0 {
+        if self.update_counter % 75 != 0 {
             return;
         }
         let mut rng = rand::thread_rng();
@@ -76,6 +82,7 @@ impl Enemies {
             distance_from_target: utils::euclidean_distance(&(0., 0.), &origin),
             position: origin,
             size: rand::thread_rng().gen_range(10..=20) as f32,
+            color: get_rand_color(),
         });
     }
 

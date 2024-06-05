@@ -1,5 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
+use enemies::utils::Pointf32;
 use ggez::{
     glam::Vec2,
     graphics::{self, Canvas, Color},
@@ -39,7 +40,7 @@ impl Player {
         Ok(())
     }
 
-    pub fn update(&mut self){
+    pub fn update(&mut self) {
         self.state_manager.borrow_mut().player.update();
     }
 
@@ -50,10 +51,10 @@ impl Player {
 
     pub fn draw(&mut self, ctx: &ggez::Context, canvas: &mut Canvas) {
         let state = self.state_manager.borrow_mut();
-        let mut fixtues = [
-            (Color::RED, state.player.position),
-            (Color::WHITE, state.player.gun_position),
-        ];
+        let mut fixtues: Vec<(Color, Pointf32)> = vec![(Color::RED, state.player.position)];
+        for gun in state.player.turrets.iter() {
+            fixtues.push((gun.color, gun.gun_position));
+        }
         for i in fixtues.iter_mut() {
             canvas.draw(
                 &graphics::Mesh::new_circle(

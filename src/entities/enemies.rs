@@ -25,7 +25,7 @@ impl Enemies {
 
     pub fn draw(&mut self, ctx: &ggez::Context, canvas: &mut Canvas) {
         for e in self.state_manager.borrow_mut().enemies.enemies.iter_mut() {
-            let mut fixtues = [(Color::GREEN, e.position, e.size)];
+            let mut fixtues = [(e.color, e.position, e.size)];
             for i in fixtues.iter_mut() {
                 canvas.draw(
                     &graphics::Mesh::new_circle(

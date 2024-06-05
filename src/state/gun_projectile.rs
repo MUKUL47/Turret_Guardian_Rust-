@@ -4,7 +4,7 @@ use ggez::{
     glam::Vec2,
     graphics::{self, Canvas, Color},
 };
-use utils::Pointf32;
+use utils::{get_rand_color, Pointf32};
 
 #[path = "../utils/mod.rs"]
 mod utils;
@@ -15,7 +15,8 @@ pub struct Projectile {
     pub origin: utils::Pointf32,
     pub original_angle: f32,
     pub distance: f32,
-    pub is_deleted: bool
+    pub is_deleted: bool,
+    pub color: Color
 }
 
 impl Projectile{
@@ -45,7 +46,8 @@ impl Projectiles {
             position: (0., 0.),
             original_angle: *original_angle,
             distance: -1., //utils::euclidean_distance(&origin, position),
-            is_deleted: false
+            is_deleted: false,
+            color: Color::YELLOW
         });
     }
 
