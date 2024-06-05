@@ -4,36 +4,8 @@
 
 This project is a Rust-based game with a modular architecture, divided into several key components. Below is an overview of the file structure and the purpose of each module.
 
-TURRET
-│
-├── src
-│ ├── core
-│ │ ├── game.rs
-│ │ └── mod.rs
-│ │
-│ ├── entities
-│ │ ├── enemies.rs
-│ │ ├── gun_projectile.rs
-│ │ ├── mod.rs
-│ │ ├── player.rs
-│ │ └── score_board.rs
-│ │
-│ ├── state
-│ │ ├── enemy.rs
-│ │ ├── gun_projectile.rs
-│ │ ├── mod.rs
-│ │ └── player.rs
-│ │
-│ ├── utils
-│ │
-│ └── main.rs
-│
-├── target
-│
-├── .gitignore
-├── Cargo.lock
-└── Cargo.toml
 
+<img src="https://github.com/MUKUL47/Turret_Guardian_Rust-/blob/main/turret-demo.gif" />
 
 ## Modules Description
 
