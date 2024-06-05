@@ -28,6 +28,7 @@ impl State_Manager {
 
     pub fn update_enemy(&mut self) {
         self.enemies.update(&self.player.position);
+        self.enemies.check_projectile_collision(&mut self.gun_projectile);
     }
 
     pub fn update_win_size(&mut self, p: utils::Pointf32){
